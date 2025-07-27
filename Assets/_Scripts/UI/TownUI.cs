@@ -7,8 +7,6 @@ using UnityEngine;
 /// </summary>
 public class TownUI : MonoBehaviour
 {
-    [Header("大西瓜入口设置")]
-    [SerializeField] private ItemData watermelonTicket; // 在Inspector中指定入场券
 
     // 【新增】引用自身Canvas，用于控制显示/隐藏
     [Header("UI控制")]
@@ -74,28 +72,4 @@ public class TownUI : MonoBehaviour
         }
     }
 
-    // ... (原有 GoToMiniGame 和 GoToWatermelonGame 方法保持不变)
-    public void GoToMiniGame()
-    {
-        SceneLoader.Instance.LoadSceneAsync("MiniGame_TestScene", true);
-    }
-
-    public void GoToWatermelonGame()
-    {
-        if (watermelonTicket == null)
-        {
-            Debug.LogError("[TownUI] 未在Inspector中设置大西瓜的入场券！");
-            return;
-        }
-
-        if (InventorySystem.Instance.HasItem(watermelonTicket, 1))
-        {
-            InventorySystem.Instance.RemoveItem(watermelonTicket, 1);
-            SceneLoader.Instance.LoadSceneAsync("WatermelonScene", true);
-        }
-        else
-        {
-            Debug.Log($"入场券不足！需要一个 {watermelonTicket.itemName}。");
-        }
-    }
 }

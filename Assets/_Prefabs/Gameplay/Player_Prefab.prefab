@@ -168,6 +168,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
+  playerSprite: {fileID: 5803524046907871194}
+  playerCollider: {fileID: 2477923416066035454}
 --- !u!114 &3954397500225447247
 MonoBehaviour:
   m_ObjectHideFlags: 0

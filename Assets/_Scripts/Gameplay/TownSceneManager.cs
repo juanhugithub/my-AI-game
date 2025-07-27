@@ -24,7 +24,7 @@ public class TownSceneManager : MonoBehaviour
     private void HandleSceneStateChanged((string sceneName, GameEvents.SceneStateType state) sceneInfo)
     {
         // 检查是否是小游戏场景
-        bool isMinigameScene = (sceneInfo.sceneName == "MiniGame_TestScene" || sceneInfo.sceneName == "WatermelonScene");
+        bool isMinigameScene = (sceneInfo.sceneName ==  "WatermelonScene");
         if (!isMinigameScene) return;
 
         // 如果小游戏场景被加载，隐藏小镇实体；如果被卸载，则显示

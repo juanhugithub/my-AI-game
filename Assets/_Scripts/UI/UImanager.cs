@@ -45,6 +45,25 @@ public class UImanager : MonoBehaviour
     [Header("子UI管理器")]
     [SerializeField] private StorageUIManager storageUIManager;
     
+    [Header("设置UI")]
+    [SerializeField] private GameObject settingsPanel;
+
+    public void ToggleSettingsPanel()
+    {
+        // 【新增日志】让我们知道这个方法是否被成功调用了
+        Debug.Log("[UImanager] ToggleSettingsPanel() 方法被成功调用！");
+        if (settingsPanel != null)
+        {
+            bool isActive = settingsPanel.activeSelf;
+            settingsPanel.SetActive(!isActive);
+            Debug.Log($"[UImanager] SettingsPanel已切换状态为: {!isActive}");
+        }
+        else
+        {
+            // 【新增日志】如果settingsPanel为空，我们会收到明确的错误提示
+            Debug.LogError("[UImanager] 错误：SettingsPanel引用为空！请在CoreScene的_CoreSystems上检查UImanager的Inspector配置！");
+        }
+    }
     private bool isInventoryUIValid = true; // 用于标记UI配置是否正确
     private void Awake()
     {
