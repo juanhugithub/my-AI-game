@@ -34,7 +34,15 @@ public class AudioManager : MonoBehaviour
             }
         }
     }
-
+    // 【新增】当此对象被销毁时，检查它是否是当前的单例实例。
+    // 如果是，则将静态实例设为null，防止其他脚本访问到已销毁的对象。
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
     /// <summary>
     /// 根据音效文件名称，播放一个音效。
     /// </summary>

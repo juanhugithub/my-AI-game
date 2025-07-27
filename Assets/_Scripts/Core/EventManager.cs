@@ -29,7 +29,15 @@ public class EventManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
+    // 【新增】当此对象被销毁时，检查它是否是当前的单例实例。
+    // 如果是，则将静态实例设为null，防止其他脚本访问到已销毁的对象。
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
     /// <summary>
     /// 订阅一个带泛型参数的事件。
     /// </summary>

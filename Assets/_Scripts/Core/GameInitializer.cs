@@ -9,12 +9,21 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class GameInitializer : MonoBehaviour
 {
+    [Header("核心预制件")]
+    [SerializeField] private GameObject playerPrefab; // 【新增】引用玩家预制件
     void Start()
     {
-        // 确保核心系统对象在切换场景时不会被销毁
         DontDestroyOnLoad(gameObject);
 
-        // 叠加加载主城场景，启动游戏
-        SceneLoader.Instance.LoadSceneAsync("TownScene", true);
+        if (playerPrefab != null)
+        {
+            if (PlayerPersistence.Instance == null)
+            {
+                Instantiate(playerPrefab);
+            }
+        }
+
+        // 【修改】使用SceneLoader的标准接口来加载初始场景
+        SceneLoader.Instance.LoadInitialScene("TownScene");
     }
 }

@@ -24,5 +24,15 @@ public class PlayerData
     public List<string> activeQuests = new List<string>();
     // 新增：已完成任务列表
     public List<string> completedQuests = new List<string>();
+    // 新增：存储所有储物箱的数据
+    public List<StorageData> storageBoxData = new List<StorageData>();
 }
 
+
+// 新增：用于存储单个储物箱数据的可序列化类
+[Serializable]
+public class StorageData
+{
+    public string boxID; // 用于唯一标识储物箱
+    public List<InventoryItemSlot> items = new List<InventoryItemSlot>();
+}

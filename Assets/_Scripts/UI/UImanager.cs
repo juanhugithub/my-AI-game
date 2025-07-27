@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro; // 需要引入TextMeshPro的命名空间
 using UnityEngine;
-
+using UnityEngine.UI;
 /// <summary>
 /// UI总管理器，采用单例模式。
 /// 职责：管理常驻的全局UI元素，如金币显示。
@@ -26,11 +26,25 @@ public class UImanager : MonoBehaviour
     [SerializeField] private GameObject inventoryPanel; // 背包面板的根对象
     [SerializeField] private GameObject inventorySlotPrefab; // 背包项的预制体
     [SerializeField] private Transform inventorySlotParent; // 背包项生成的父节点
-
+    
+    [Header("制造UI")] // 【新增】
+    [SerializeField] private GameObject craftingPanel;
+    [SerializeField] private Button craftButton;
+    [SerializeField] private Button closeCraftingPanelButton;
+    [SerializeField] private RecipeData recipeToDisplay; // 暂时只显示一个配方
+    
     [Header("任务UI")]
     [SerializeField] private GameObject questLogPanel;// 任务日志面板
     [SerializeField] private TextMeshProUGUI questLogText;// 任务日志文本显示
 
+    [Header("仓储UI")]
+    [SerializeField] private GameObject storagePanel;
+    // ... (还需要背包和仓库各自的Content Transform和Slot Prefab引用)
+    private StorageBoxController currentOpenBox;
+    
+    [Header("子UI管理器")]
+    [SerializeField] private StorageUIManager storageUIManager;
+    
     private bool isInventoryUIValid = true; // 用于标记UI配置是否正确
     private void Awake()
     {
@@ -60,17 +74,84 @@ public class UImanager : MonoBehaviour
         // 初始更新
         UpdateGoldDisplay(DataManager.Instance.PlayerData.Gold);
         inventoryPanel.SetActive(false); // 默认隐藏背包
+
+        // 【新增】为制造按钮和关闭按钮添加监听器
+        if (craftButton != null)
+        {
+            craftButton.onClick.AddListener(OnCraftButtonClick);
+        }
+        if (closeCraftingPanelButton != null)
+        {
+            closeCraftingPanelButton.onClick.AddListener(CloseCraftingPanel);
+        }
+    }
+    /// <summary>
+    /// 【新增】打开制造面板的公共方法
+    /// </summary>
+    public void OpenCraftingPanel()
+    {
+        if (craftingPanel == null) return;
+
+        // 更新UI以显示配方信息 (简化版)
+        UpdateCraftingPanelUI();
+
+        craftingPanel.SetActive(true);
     }
 
+    /// <summary>
+    /// 【新增】关闭制造面板的公共方法
+    /// </summary>
+    public void CloseCraftingPanel()
+    {
+        if (craftingPanel != null)
+        {
+            craftingPanel.SetActive(false);
+        }
+    }
+
+    // 【新增】点击制造按钮时调用的方法
+    private void OnCraftButtonClick()
+    {
+        if (recipeToDisplay != null)
+        {
+            CraftingSystem.Instance.CraftItem(recipeToDisplay);
+            // 制造后可以刷新一下UI，显示材料数量变化
+        }
+    }
+
+    // 【新增】用配方数据更新UI的内部方法
+    private void UpdateCraftingPanelUI()
+    {
+        // 此处应编写详细的UI更新代码
+        // 例如：resultIcon.sprite = recipeToDisplay.resultItem.itemData.icon;
+        // ingredientText.text = $"x {recipeToDisplay.requiredIngredients[0].amount}";
+        Debug.Log("制造面板UI已刷新以显示配方: " + recipeToDisplay.name);
+    }
+    /// <summary>
+    /// 【修改】OnDestroy方法现在不再需要处理事件取消订阅的逻辑。
+    /// 我们可以将它保留为空，或者直接删除。
+    /// </summary>
     private void OnDestroy()
     {
-        // 取消订阅
-        EventManager.Instance.Unsubscribe<long>(GameEvents.OnGoldUpdated, UpdateGoldDisplay);
-        EventManager.Instance.Unsubscribe<object>(GameEvents.OnInventoryUpdated, UpdateInventoryDisplay);
-        EventManager.Instance.Unsubscribe<object>(GameEvents.OnQuestStateChanged, UpdateQuestLog);
-
+        // 此处的逻辑已移至OnApplicationQuit，以避免销毁顺序问题
     }
+    /// <summary>
+    /// 【新增】当应用程序退出前，这个方法会被调用。
+    /// 这是进行最终清理（如取消事件订阅）最安全的地方。
+    /// </summary>
+    private void OnApplicationQuit()
+    {
+        Debug.Log("[UImanager] Application is quitting. Unsubscribing from all events.");
 
+        // 尽管此时EventManager.Instance几乎可以肯定是有效的，
+        // 但保留这个检查是一个非常健壮的编程习惯。
+        if (EventManager.Instance != null)
+        {
+            EventManager.Instance.Unsubscribe<long>(GameEvents.OnGoldUpdated, UpdateGoldDisplay);
+            EventManager.Instance.Unsubscribe<object>(GameEvents.OnInventoryUpdated, UpdateInventoryDisplay);
+            EventManager.Instance.Unsubscribe<object>(GameEvents.OnQuestStateChanged, UpdateQuestLog);
+        }
+    }
     /// <summary>
     /// 更新金币显示的具体方法。此方法由事件回调触发。
     /// </summary>
@@ -186,4 +267,24 @@ public class UImanager : MonoBehaviour
             }
         }
     }
+    public void OpenStoragePanel(StorageBoxController storageBox)
+    {
+        if (storageUIManager != null)
+        {
+            storageUIManager.Open(storageBox);
+        }
+    }
+    public void CloseStoragePanel()
+    {
+        storagePanel.SetActive(false);
+        currentOpenBox = null;
+    }
+    // 该方法需要根据背包和仓库的数据，动态生成或更新UI列表
+    private void RefreshStorageUI() { /* ... UI刷新逻辑 ... */ }
+
+    // 示例：从背包移至仓库
+    public void TransferToStorage(ItemData item, int amount) { /* ... */ }
+    // 示例：从仓库移至背包
+    public void TransferToInventory(ItemData item, int amount) { /* ... */ }
+
 }

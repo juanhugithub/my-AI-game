@@ -16,7 +16,7 @@ public class SceneLoader : MonoBehaviour
 
     [SerializeField] private Image fadeImage; // 用于淡入淡出的黑色UI图片
     [SerializeField] private float fadeDuration = 0.5f;
-
+    
     private void Awake()
     {
         if (Instance == null)
@@ -28,7 +28,53 @@ public class SceneLoader : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    /// <summary>
+    /// 【全新】健壮的场景切换方法。
+    /// 它接收明确的“从哪来”和“到哪去”的指令。
+    /// </summary>
+    /// <param name="sceneToUnload">需要卸载的场景名</param>
+    /// <param name="sceneToLoad">需要加载的场景名</param>
+    public void Transition(string sceneToUnload, string sceneToLoad)
+    {
+        StartCoroutine(TransitionRoutine(sceneToUnload, sceneToLoad));
+    }
+    private IEnumerator TransitionRoutine(string sceneToUnload, string sceneToLoad)
+    {
+        // 1. 淡出
+        yield return StartCoroutine(Fade(1f));
 
+        // 2. 卸载旧场景 (如果提供了需要卸载的场景名)
+        if (!string.IsNullOrEmpty(sceneToUnload))
+        {
+            Scene scene = SceneManager.GetSceneByName(sceneToUnload);
+            if (scene.isLoaded)
+            {
+                yield return SceneManager.UnloadSceneAsync(sceneToUnload);
+            }
+        }
+
+        // 3. 加载新场景
+        yield return SceneManager.LoadSceneAsync(sceneToLoad, LoadSceneMode.Additive);
+
+        // 4. 将新加载的场景设置为活动场景（这是一个好习惯）
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneToLoad));
+
+        // 5. 触发场景状态变更事件
+        EventManager.Instance.TriggerEvent(GameEvents.OnSceneStateChanged, (sceneToLoad, GameEvents.SceneStateType.LoadedAdditive));
+
+        // 6. 淡入
+        yield return StartCoroutine(Fade(0f));
+    }
+
+    // 【新增】当此对象被销毁时，检查它是否是当前的单例实例。
+    // 如果是，则将静态实例设为null，防止其他脚本访问到已销毁的对象。
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
     /// <summary>
     /// 异步加载场景。
     /// </summary>
@@ -55,6 +101,7 @@ public class SceneLoader : MonoBehaviour
     {
         StartCoroutine(ReloadSceneRoutine(sceneName));
     }
+   
     /// <summary>
     /// 【最终加固】用于安全重载场景的内部协程。
     /// 新增了卸载前的有效性检查和活动场景转移逻辑。
@@ -135,7 +182,17 @@ public class SceneLoader : MonoBehaviour
         // 【新增】卸载完成后触发事件
         EventManager.Instance.TriggerEvent(GameEvents.OnSceneStateChanged, (sceneName, GameEvents.SceneStateType.UnloadedAdditive));
     }
-
+    // 【补充】我们还需要一个只加载不卸载的初始方法
+    public void LoadInitialScene(string sceneName)
+    {
+        StartCoroutine(InitialLoadRoutine(sceneName));
+    }
+    private IEnumerator InitialLoadRoutine(string sceneName)
+    {
+        yield return SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
+        EventManager.Instance.TriggerEvent(GameEvents.OnSceneStateChanged, (sceneName, GameEvents.SceneStateType.LoadedAdditive));
+    }
     private IEnumerator Fade(float targetAlpha)
     {
         fadeImage.gameObject.SetActive(true);
@@ -163,3 +220,4 @@ public class SceneLoader : MonoBehaviour
         }
     }
 }
+
