@@ -16,7 +16,7 @@ public class WeatherManager : MonoBehaviour
     private Dictionary<WeatherType, WeatherSetting> weatherDictionary;
 
     // 引用UIManager来改变背景图
-    public UIManager uiManager;
+    public Watermelon_UIManager uiManager;
 
     void Awake()
     {

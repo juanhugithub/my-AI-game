@@ -27,23 +27,9 @@ public class GameManager : MonoBehaviour
     [Header("管理器引用")]
     public FruitSpawner fruitSpawner;
     public ScoreManager scoreManager;
-    public UIManager uiManager;
+    public Watermelon_UIManager uiManager;
     public TopLine topLine;
     public WeatherManager weatherManager;
-    public AudioManager audioManager;
-
-    [Header("语音库")]
-    public AudioClip[] earlyTauntClips;
-    public AudioClip[] midEncourageClips;
-    public AudioClip[] lateDangerClips;
-    public AudioClip[] celebrationClips;
-    public AudioClip[] newRecordClips;
-    public AudioClip[] normalEndClips;
-
-    [Header("短音效")]
-    public AudioClip combineSfx;
-    public AudioClip hitSfx;
-    public AudioClip itemNotAvailableSfx; // <-- 新增：道具不可用音效
 
     [Header("危险区域参数")]
     public float dangerHeightThreshold = 3.5f;
@@ -58,7 +44,7 @@ public class GameManager : MonoBehaviour
     public int initialItemCount = 3;
 
     private System.Action<Vector3> onItemTargetSelected; // <-- 之前缺失的变量声明
-
+    private GameObject offendingFruit; // 用于“继续游戏”功能
     private struct VoiceRequest { public FruitType type; public Vector3 position; }
     private List<VoiceRequest> voiceRequestsThisFrame = new List<VoiceRequest>();
 
@@ -79,7 +65,8 @@ public class GameManager : MonoBehaviour
     {
         if (gameState == GameState.StandBy)
         {
-            if (Input.GetMouseButtonDown(0))
+            // 【已重构】使用新的全局输入
+            if (GameInput.GetDropAction())
             {
                 fruitSpawner.DropFruit();
                 OnFruitDropped();
@@ -92,16 +79,16 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.ItemTargeting)
         {
-            if (Input.GetMouseButtonDown(0))
+            // 【已重构】使用新的全局输入
+            if (GameInput.GetDropAction())
             {
-                // 如果onItemTargetSelected有值，说明是黑洞炸弹这类需要选择位置的道具
                 if (onItemTargetSelected != null)
                 {
                     Vector3 targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     targetPosition.z = 0;
                     onItemTargetSelected.Invoke(targetPosition);
                 }
-                else // 否则，是消融药剂这类需要选择水果的道具
+                else
                 {
                     RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
                     if (hit.collider != null && hit.collider.CompareTag("Fruit"))
@@ -117,13 +104,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void LateUpdate()
-    {
-        if (voiceRequestsThisFrame.Count == 0) return;
-        var bestRequest = voiceRequestsThisFrame.OrderByDescending(r => r.type).First();
-        PlaySituationalVoice(bestRequest.type, bestRequest.position);
-        voiceRequestsThisFrame.Clear();
-    }
 
     // --- 道具系统核心方法 ---
     private void InitializeItems()
@@ -148,21 +128,12 @@ public class GameManager : MonoBehaviour
     // --- 道具激活方法 ---
     public void ActivateDissolvePotion()
     {
-        // --- 关键修改在这里 ---
         if (itemCounts[ItemType.DissolvePotion] <= 0)
         {
-            // 播放音效
-            if (audioManager != null && itemNotAvailableSfx != null)
-            {
-                audioManager.PlaySFX(itemNotAvailableSfx);
-            }
-            // 显示提示文本
-            if (uiManager != null)
-            {
-                uiManager.ShowTip("消融药剂数量不足！");
-            }
-            uiManager.CloseAllItemPanels(); // 关闭详情面板
-            return; // 直接返回，不执行后续逻辑
+            AudioManager.Instance.PlaySound("itemNotAvailableSfx");
+            uiManager.ShowTip("消融药剂数量不足！");
+            uiManager.CloseAllItemPanels();
+            return;
         }
         if (gameState != GameState.StandBy && gameState != GameState.InProgress) return;
 
@@ -223,17 +194,10 @@ public class GameManager : MonoBehaviour
 
     public void ActivateBlackHoleBomb()
     {
-        // --- 关键修改在这里 ---
         if (itemCounts[ItemType.BlackHoleBomb] <= 0)
         {
-            if (audioManager != null && itemNotAvailableSfx != null)
-            {
-                audioManager.PlaySFX(itemNotAvailableSfx);
-            }
-            if (uiManager != null)
-            {
-                uiManager.ShowTip("黑洞**###**数量不足！");
-            }
+            AudioManager.Instance.PlaySound("itemNotAvailableSfx");
+            uiManager.ShowTip("黑洞炸弹数量不足！");
             uiManager.CloseAllItemPanels();
             return;
         }
@@ -269,21 +233,13 @@ public class GameManager : MonoBehaviour
 
     public void ActivateLuckyFruit()
     {
-        // --- 关键修改在这里 ---
         if (itemCounts[ItemType.LuckyFruit] <= 0)
         {
-            if (audioManager != null && itemNotAvailableSfx != null)
-            {
-                audioManager.PlaySFX(itemNotAvailableSfx);
-            }
-            if (uiManager != null)
-            {
-                uiManager.ShowTip("幸运果实数量不足！");
-            }
+            AudioManager.Instance.PlaySound("itemNotAvailableSfx");
+            uiManager.ShowTip("幸运果实数量不足！");
             uiManager.CloseAllItemPanels();
             return;
         }
-
         if (gameState != GameState.StandBy) return;
 
         uiManager.CloseAllItemPanels();
@@ -326,7 +282,7 @@ public class GameManager : MonoBehaviour
         WeatherType[] weathers = (WeatherType[])System.Enum.GetValues(typeof(WeatherType));
         WeatherType randomWeather = weathers[Random.Range(0, weathers.Length)];
         weatherManager.SetWeather(randomWeather);
-        audioManager.PlayBGM(randomWeather);
+        //audioManager.PlayBGM(randomWeather);
 
         fruitSpawner.CreateFruit();
     }
@@ -351,7 +307,7 @@ public class GameManager : MonoBehaviour
 
     public void PlayHitSound()
     {
-        audioManager.PlaySFX(hitSfx);
+        AudioManager.Instance.PlaySound("hitSfx");
     }
 
     public void RequestCombine(Fruit fruitA, Fruit fruitB)
@@ -362,7 +318,7 @@ public class GameManager : MonoBehaviour
         voiceRequestsThisFrame.Add(new VoiceRequest { type = combinedType + 1, position = centerPos });
         fruitSpawner.Combine(combinedType, centerPos);
         scoreManager.AddScore(fruitA.fuirtScore);
-        audioManager.PlaySFX(combineSfx);
+        AudioManager.Instance.PlaySound("combineSfx");
         Destroy(fruitA.gameObject);
         Destroy(fruitB.gameObject);
     }
@@ -382,31 +338,6 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private void PlaySituationalVoice(FruitType newFruitType, Vector3 combinePosition)
-    {
-        if (audioManager == null) return;
-        AudioClip clipToPlay = null;
-        if (newFruitType == FruitType.Eleven && celebrationClips.Length > 0)
-        {
-            clipToPlay = celebrationClips[Random.Range(0, celebrationClips.Length)];
-        }
-        else
-        {
-            bool isInDangerZone = combinePosition.y >= dangerHeightThreshold;
-            if (isInDangerZone && lateDangerClips.Length > 0 && Random.value < 0.3f)
-            {
-                clipToPlay = lateDangerClips[Random.Range(0, lateDangerClips.Length)];
-            }
-            if (clipToPlay == null && Random.value < 0.25f)
-            {
-                if (newFruitType >= FruitType.Five && newFruitType <= FruitType.Nine && midEncourageClips.Length > 0)
-                    clipToPlay = midEncourageClips[Random.Range(0, midEncourageClips.Length)];
-                else if (newFruitType >= FruitType.Two && newFruitType <= FruitType.Four && earlyTauntClips.Length > 0)
-                    clipToPlay = earlyTauntClips[Random.Range(0, earlyTauntClips.Length)];
-            }
-        }
-        audioManager.PlayVoice(clipToPlay);
-    }
     
     public void ReturnToMenu()
     {

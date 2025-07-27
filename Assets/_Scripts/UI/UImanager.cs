@@ -1,4 +1,4 @@
-// UIManager.cs
+// Watermelon_UIManager.cs
 using TMPro; // 需要引入TextMeshPro的命名空间
 using UnityEngine;
 using System.Collections.Generic;

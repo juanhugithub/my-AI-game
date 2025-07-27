@@ -9,7 +9,7 @@ public class ScoreManager : MonoBehaviour
     private const string HighestScoreKey = "HighestScore";
 
     // 引用UI管理器
-    public UIManager uiManager;
+    public Watermelon_UIManager uiManager;
 
     public void AddScore(float scoreToAdd)
     {
