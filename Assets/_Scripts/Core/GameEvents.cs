@@ -11,7 +11,8 @@ public static class GameEvents
     // 当小游戏完成并产生分数时触发
     // 参数: int (分数)
     public const string OnMiniGameFinished = "OnMiniGameFinished";
-
+    // 当玩家完成任务时触发
+    public const string OnQuestStateChanged = "OnQuestStateChanged";
     // 当玩家金币数量更新后触发
     // 参数: long (新的金币总数)
     public const string OnGoldUpdated = "OnGoldUpdated";

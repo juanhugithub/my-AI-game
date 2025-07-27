@@ -1,7 +1,9 @@
 // Watermelon_UIManager.cs
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using TMPro; // 需要引入TextMeshPro的命名空间
 using UnityEngine;
-using System.Collections.Generic;
 
 /// <summary>
 /// UI总管理器，采用单例模式。
@@ -11,6 +13,10 @@ using System.Collections.Generic;
 /// </summary>
 public class UImanager : MonoBehaviour
 {
+    [Header("全局提示UI")] // 【新增】
+    [SerializeField] private GameObject hintPanel; // 一个简单的Panel，包含一个Text
+    [SerializeField] private TextMeshProUGUI hintText;
+    [SerializeField] private float hintDisplayDuration = 3f; // 提示显示时长
     public static UImanager Instance { get; private set; }
 
     [Header("通用UI元素")]
@@ -20,6 +26,10 @@ public class UImanager : MonoBehaviour
     [SerializeField] private GameObject inventoryPanel; // 背包面板的根对象
     [SerializeField] private GameObject inventorySlotPrefab; // 背包项的预制体
     [SerializeField] private Transform inventorySlotParent; // 背包项生成的父节点
+
+    [Header("任务UI")]
+    [SerializeField] private GameObject questLogPanel;// 任务日志面板
+    [SerializeField] private TextMeshProUGUI questLogText;// 任务日志文本显示
 
     private bool isInventoryUIValid = true; // 用于标记UI配置是否正确
     private void Awake()
@@ -45,7 +55,8 @@ public class UImanager : MonoBehaviour
         // 订阅事件
         EventManager.Instance.Subscribe<long>(GameEvents.OnGoldUpdated, UpdateGoldDisplay);
         EventManager.Instance.Subscribe<object>(GameEvents.OnInventoryUpdated, UpdateInventoryDisplay);
-
+        // 在Start()中订阅
+        EventManager.Instance.Subscribe<object>(GameEvents.OnQuestStateChanged, UpdateQuestLog);
         // 初始更新
         UpdateGoldDisplay(DataManager.Instance.PlayerData.Gold);
         inventoryPanel.SetActive(false); // 默认隐藏背包
@@ -56,6 +67,8 @@ public class UImanager : MonoBehaviour
         // 取消订阅
         EventManager.Instance.Unsubscribe<long>(GameEvents.OnGoldUpdated, UpdateGoldDisplay);
         EventManager.Instance.Unsubscribe<object>(GameEvents.OnInventoryUpdated, UpdateInventoryDisplay);
+        EventManager.Instance.Unsubscribe<object>(GameEvents.OnQuestStateChanged, UpdateQuestLog);
+
     }
 
     /// <summary>
@@ -69,7 +82,75 @@ public class UImanager : MonoBehaviour
             goldText.text = $"金币: {newGoldAmount}";
         }
     }
+    /// <summary>
+    /// 【新增】显示一条会自动消失的全局提示。
+    /// 任何系统都可以调用此方法来给玩家反馈。
+    /// </summary>
+    public void ShowGlobalHint(string message)
+    {
+        Debug.Log($"[UImanager] 1. ShowGlobalHint方法被调用，准备显示消息: '{message}'");
+        if (this == null || this.gameObject == null)
+        {
+            Debug.LogError("[UImanager] 致命错误：UImanager实例或其GameObject已被销毁！");
+            return;
+        }
 
+        if (!this.gameObject.activeInHierarchy)
+        {
+            Debug.LogError("[UImanager] 错误：UImanager的GameObject处于非激活状态，无法启动协程！");
+            return;
+        }
+
+        // 停止之前的协程，以防万一
+        StopAllCoroutines();
+        StartCoroutine(ShowHintRoutine(message));
+    }
+    private IEnumerator ShowHintRoutine(string message)
+    {
+        Debug.Log("[UImanager] 2. ShowHintRoutine协程已启动。");
+        if (hintPanel == null)
+        {
+            Debug.LogError("[UImanager] 错误：HintPanel引用为空！请在CoreScene的_CoreSystems上检查UImanager的Inspector配置！");
+            yield break;
+        }
+        if (hintText == null)
+        {
+            Debug.LogError("[UImanager] 错误：HintText引用为空！请在CoreScene的_CoreSystems上检查UImanager的Inspector配置！");
+            yield break;
+        }
+
+        Debug.Log("[UImanager] 3. 引用检查通过。准备激活面板并设置文本。");
+        hintText.text = message;
+        hintPanel.SetActive(true);
+
+        // 检查面板是否真的激活了
+        if (hintPanel.activeInHierarchy)
+        {
+            Debug.Log("[UImanager] 4. HintPanel.SetActive(true) 已执行，且activeInHierarchy为True。面板现在应该是可见的。");
+        }
+        else
+        {
+            Debug.LogError("[UImanager] 5. 错误：执行了SetActive(true)后，HintPanel的activeInHierarchy仍为False！这通常意味着它的某个父对象（如CoreCanvas）被禁用了！");
+        }
+
+        yield return new WaitForSeconds(hintDisplayDuration);
+        Debug.Log("[UImanager] 6. 等待时间结束，准备隐藏面板。");
+        hintPanel.SetActive(false);
+    }
+
+    // UImanager.cs (UpdateQuestLog方法修改)
+    public void UpdateQuestLog(object data = null)
+    {
+        // 【修改】通过新的公开属性 ActiveQuests 来访问数据
+        var currentQuests = QuestSystem.Instance.ActiveQuests;
+
+        questLogPanel.SetActive(currentQuests.Any());
+        questLogText.text = "";
+        foreach (var quest in currentQuests) // 【修改】
+        {
+            questLogText.text += quest.questName + "\n";
+        }
+    }
     /// <summary>
     /// 响应背包更新事件，刷新UI显示。
     /// </summary>

@@ -276,6 +276,16 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         gameState = GameState.StandBy;
+        if (scoreManager != null) scoreManager.ResetCurrentScore();
+        // 【加固】确保uiManager引用存在
+        if (uiManager != null)
+        {
+            uiManager.ShowGameUI();
+        }
+        else
+        {
+            Debug.LogError("[GameManager] uiManager引用为空，无法切换UI！");
+        }
         scoreManager.ResetCurrentScore();
         uiManager.ShowGameUI();
 

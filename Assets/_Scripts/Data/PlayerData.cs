@@ -20,4 +20,9 @@ public class PlayerData
     public long Gold;
     // 新增：背包物品列表
     public List<InventoryItemSlot> inventoryItems = new List<InventoryItemSlot>();
+    // 新增：任务状态
+    public List<string> activeQuests = new List<string>();
+    // 新增：已完成任务列表
+    public List<string> completedQuests = new List<string>();
 }
+
