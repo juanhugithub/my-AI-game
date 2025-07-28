@@ -47,6 +47,8 @@ public class DialogueSystem : MonoBehaviour
     }
     public void StartDialogue(DialogueData dialogue, Action onDialogueEnd = null)
     {
+        // 【关键集成点】开始对话时，命令玩家进入“对话状态”
+        PlayerStateMachine.Instance.SetState(PlayerState.InDialogue);
         dialoguePanel.SetActive(true);
         sentences.Clear();
 
@@ -74,6 +76,9 @@ public class DialogueSystem : MonoBehaviour
 
     private void EndDialogue()
     {
+        // 【关键集成点】对话结束时，命令玩家返回“游戏状态”
+        PlayerStateMachine.Instance.SetState(PlayerState.Gameplay);
+
         dialoguePanel.SetActive(false);
         onDialogueEndCallback?.Invoke(); // 如果有回调，则执行
     }

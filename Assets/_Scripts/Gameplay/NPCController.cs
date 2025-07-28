@@ -1,5 +1,6 @@
-// NPCController.cs (健壮性修复版)
+// NPCController.cs (已重构，广播通用任务事件)
 using UnityEngine;
+using System;
 
 public class NPCController : MonoBehaviour
 {
@@ -11,21 +12,23 @@ public class NPCController : MonoBehaviour
     {
         if (isPlayerInRange && GameInput.GetInteractActionDown())
         {
-            System.Action onDialogueEndAction = () => {
-                if (questToOfferAfterDialogue != null)
+            Action onDialogueEndAction = () => {
+                // 【关键修改】广播一个“对话”类型的进度事件，并附上该NPC的唯一ID
+                if (initialDialogue.speaker != null && !string.IsNullOrEmpty(initialDialogue.speaker.guid))
                 {
-                    // 【关键修复】在调用前，检查QuestSystem实例是否存在
-                    if (QuestSystem.Instance != null)
-                    {
-                        QuestSystem.Instance.AcceptQuest(questToOfferAfterDialogue);
-                    }
-                    else
-                    {
-                        // 如果不存在，给出一个明确的错误日志
-                        Debug.LogError("[NPCController] 对话结束时，QuestSystem.Instance为空！请检查CoreScene中的_CoreSystems对象是否正确挂载并启用了QuestSystem脚本！");
-                    }
+                    EventManager.Instance.TriggerEvent(
+                        GameEvents.OnQuestObjectiveProgress,
+                        (ObjectiveType.TALK, initialDialogue.speaker.guid)
+                    );
+                }
+
+                // 提供任务的逻辑保持不变
+                if (questToOfferAfterDialogue != null && QuestSystem.Instance != null)
+                {
+                    QuestSystem.Instance.AcceptQuest(questToOfferAfterDialogue);
                 }
             };
+
             DialogueSystem.Instance.StartDialogue(initialDialogue, onDialogueEndAction);
         }
     }

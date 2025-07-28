@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NewCrop", menuName = "梦境小镇/数据/作物数据")]
-public class CropData : ScriptableObject
+public class CropData : BaseDataSO
 {
     public string cropName;
     [Tooltip("作物的生长阶段图片，从种子到成熟")]

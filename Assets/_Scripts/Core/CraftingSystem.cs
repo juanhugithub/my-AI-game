@@ -19,7 +19,7 @@ public class CraftingSystem : MonoBehaviour
         // 2. 检查所有物品材料是否足够
         foreach (var ingredient in recipe.requiredIngredients)
         {
-            ItemData item = Resources.Load<ItemData>($"Items/{ingredient.itemID}");
+            ItemData item = Resources.Load<ItemData>($"Items/{ingredient.itemGuid}");
             if (!InventorySystem.Instance.HasItem(item, ingredient.amount))
             {
                 UImanager.Instance.ShowGlobalHint($"材料不足: {item.itemName}");
@@ -31,12 +31,12 @@ public class CraftingSystem : MonoBehaviour
         DataManager.Instance.RemoveGold(recipe.requiredGold); // 消耗金币
         foreach (var ingredient in recipe.requiredIngredients)
         {
-            ItemData item = Resources.Load<ItemData>($"Items/{ingredient.itemID}");
+            ItemData item = Resources.Load<ItemData>($"Items/{ingredient.itemGuid}");
             InventorySystem.Instance.RemoveItem(item, ingredient.amount); // 消耗物品
         }
 
         // 4. 添加成品
-        ItemData result = Resources.Load<ItemData>($"Items/{recipe.resultItem.itemID}");
+        ItemData result = Resources.Load<ItemData>($"Items/{recipe.resultItem.itemGuid}");
         InventorySystem.Instance.AddItem(result, recipe.resultItem.amount);
 
         UImanager.Instance.ShowGlobalHint($"成功制造: {result.itemName}!");

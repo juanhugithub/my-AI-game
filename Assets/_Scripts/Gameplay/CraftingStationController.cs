@@ -10,7 +10,7 @@ public class CraftingStationController : MonoBehaviour
         if (isPlayerInRange && GameInput.GetInteractActionDown())
         {
             // 当玩家在范围内并按下交互键，调用核心UI管理器打开制造面板
-            UImanager.Instance.OpenCraftingPanel();
+            UImanager.Instance.ToggleCraftingPanel(true);
         }
     }
 

@@ -62,22 +62,16 @@ public class DataManager : MonoBehaviour
     public void LoadGame()
     {
         string json = PlayerPrefs.GetString(SaveKey, string.Empty);
-        if (!string.IsNullOrEmpty(json))
+        PlayerData = !string.IsNullOrEmpty(json)
+         ? JsonUtility.FromJson<PlayerData>(json)
+         : new PlayerData();
+
+        // 【新增】在加载完玩家数据后，立即调用InventorySystem来加载背包
+        // 此时AssetManager的Awake已经执行完毕，是安全的
+        if (InventorySystem.Instance != null)
         {
-            // 如果有存档，直接加载
-            PlayerData = JsonUtility.FromJson<PlayerData>(json);
+            InventorySystem.Instance.LoadInventoryFromData(PlayerData);
         }
-        else
-        {
-            // 【关键修正】: 如果没有存档，则创建一个新玩家数据，并赠送测试物品。
-            // 这是解决“入场券不足”问题的核心。
-            Debug.Log("[DataManager] 未找到存档。正在创建新玩家并赠送测试物品...");
-            PlayerData = new PlayerData();
-            // 您可以在这里按需添加初始物品
-            PlayerData.inventoryItems.Add(new InventoryItemSlot { itemID = "VitalityFruit", amount = 5 });
-           
-        }
-        // 加载完PlayerData后，遍历其中的storageBoxData，找到对应的StorageBoxController并恢复其数据
     }
 
     public void SaveGame()

@@ -909,7 +909,7 @@ MonoBehaviour:
   m_text: New Text
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c64a5b6405759b04098d5bbb8f87f765, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: -4132293206098786529, guid: c64a5b6405759b04098d5bbb8f87f765, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2836,6 +2836,7 @@ GameObject:
   - component: {fileID: 736674456}
   - component: {fileID: 736674458}
   - component: {fileID: 736674457}
+  - component: {fileID: 736674459}
   m_Layer: 5
   m_HasEditorInfo: 1
   m_Name: CraftingPanel
@@ -2904,6 +2905,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 736674455}
   m_CullTransparentMesh: 1
+--- !u!114 &736674459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 736674455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cc5fc53fb111d943afed53fd7b2548a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  recipeToDisplay: {fileID: 11400000, guid: 54fbf61c7ba51bb48a7b0cf138d0e063, type: 2}
+  craftButton: {fileID: 331706346}
+  closeButton: {fileID: 248345508}
+  ingredientsContent: {fileID: 1624144142}
+  ingredientSlotPrefab: {fileID: 0}
+  resultIcon: {fileID: 2026837713}
+  resultNameText: {fileID: 1399412989}
+  goldCostText: {fileID: 1541925358}
 --- !u!1 &786194510
 GameObject:
   m_ObjectHideFlags: 0
@@ -4855,6 +4876,7 @@ GameObject:
   - component: {fileID: 1429319447}
   - component: {fileID: 1429319448}
   - component: {fileID: 1429319449}
+  - component: {fileID: 1429319450}
   m_Layer: 0
   m_HasEditorInfo: 1
   m_Name: _CoreSystems
@@ -4875,22 +4897,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd83badac245ae409ea4f8934f9b26c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  settingsPanel: {fileID: 1071974630}
+  storagePanel: {fileID: 32461726}
+  craftingPanel: {fileID: 736674455}
+  questLogPanel: {fileID: 1781191149}
+  storageUIManager: {fileID: 32461730}
   hintPanel: {fileID: 1014505915}
   hintText: {fileID: 417901436}
   hintDisplayDuration: 3
-  goldText: {fileID: 2079561774}
-  inventoryPanel: {fileID: 521265086}
-  inventorySlotPrefab: {fileID: 8326361958971874880, guid: c917e161f2198234cbf3bf760aa04d9d, type: 3}
-  inventorySlotParent: {fileID: 521265087}
-  craftingPanel: {fileID: 736674455}
-  craftButton: {fileID: 331706346}
-  closeCraftingPanelButton: {fileID: 248345508}
-  recipeToDisplay: {fileID: 11400000, guid: 54fbf61c7ba51bb48a7b0cf138d0e063, type: 2}
-  questLogPanel: {fileID: 1781191149}
-  questLogText: {fileID: 874471144}
-  storagePanel: {fileID: 0}
-  storageUIManager: {fileID: 32461730}
-  settingsPanel: {fileID: 1071974630}
 --- !u!114 &1429319436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5252,6 +5266,18 @@ MonoBehaviour:
     sfxVolume: 1
     graphicsQualityIndex: 2
   mainMixer: {fileID: 24100000, guid: ec7f2616bf72e114c897230fbe482892, type: 2}
+--- !u!114 &1429319450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1429319434}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1780d1bf2d9fa6043af169dc4435b939, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1431613973
 GameObject:
   m_ObjectHideFlags: 0
@@ -6607,6 +6633,7 @@ GameObject:
   - component: {fileID: 1781191150}
   - component: {fileID: 1781191152}
   - component: {fileID: 1781191151}
+  - component: {fileID: 1781191153}
   m_Layer: 5
   m_HasEditorInfo: 1
   m_Name: QuestLogPanel
@@ -6673,6 +6700,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1781191149}
   m_CullTransparentMesh: 1
+--- !u!114 &1781191153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1781191149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50581e881e3077e41ae7f63cf2021e12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  questLogPanel: {fileID: 1781191149}
+  questLogText: {fileID: 874471144}
 --- !u!1 &1793445483
 GameObject:
   m_ObjectHideFlags: 0
@@ -6943,7 +6984,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4281479730
   m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -6956,7 +6997,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -7460,7 +7501,7 @@ MonoBehaviour:
   m_text: New Text
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c64a5b6405759b04098d5bbb8f87f765, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: -4132293206098786529, guid: c64a5b6405759b04098d5bbb8f87f765, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

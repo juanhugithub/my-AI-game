@@ -3,12 +3,13 @@ using UnityEngine;
 using System.Collections.Generic;
 using System; // For Serializable
 
-public enum ObjectiveType { GATHER, PLAY_GAME }
+public enum ObjectiveType { GATHER, PLAY_GAME, TALK } //【新增】对话任务类型
 
 [Serializable]
 public class QuestObjective
 {
     public ObjectiveType type;
+    public string targetID;       // 【新增】目标ID。如NPC的GUID，区域触发器的名字等
     public ItemData targetItem; // GATHER类型需要
     public int amount;
 

@@ -33,9 +33,7 @@ public class PlayerController : MonoBehaviour
     }
     private void OnDestroy()
     {
-        // 取消订阅
-        EventManager.Instance.Unsubscribe<(string, GameEvents.SceneStateType)>(GameEvents.OnSceneStateChanged, OnSceneChanged);
-        EventManager.Instance.Unsubscribe<string>("OnPlayerSpawnPointChange", GoToSpawnPoint);
+       
     }
     private void Update()
     {
@@ -52,10 +50,14 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // 在FixedUpdate中应用物理移动，效果更平滑
+        if (PlayerStateMachine.Instance == null || PlayerStateMachine.Instance.CurrentState != PlayerState.Gameplay)
+        {
+            rb.velocity = Vector2.zero;
+            return;
+        }
         rb.velocity = moveInput.normalized * moveSpeed;
     }
-   
+
     /// <summary>
     /// 当一个新场景加载完成时调用 
     /// </summary>
@@ -104,6 +106,20 @@ public class PlayerController : MonoBehaviour
                 transform.position = point.transform.position;
                 return;
             }
+        }
+    }
+    /// <summary>
+    /// 【新增】当应用程序退出前，这个方法会被调用。
+    /// 这是为持久化对象进行最终清理（如取消事件订阅）最安全的地方。
+    /// </summary>
+    private void OnApplicationQuit()
+    {
+        // 尽管此时EventManager.Instance几乎可以肯定是有效的，
+        // 但保留这个检查是一个非常健壮的编程习惯。
+        if (EventManager.Instance != null)
+        {
+            EventManager.Instance.Unsubscribe<(string, GameEvents.SceneStateType)>(GameEvents.OnSceneStateChanged, OnSceneChanged);
+            EventManager.Instance.Unsubscribe<string>("OnPlayerSpawnPointChange", GoToSpawnPoint);
         }
     }
 }

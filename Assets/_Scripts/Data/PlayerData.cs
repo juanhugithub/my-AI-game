@@ -10,7 +10,7 @@ using System.Collections.Generic; // 需要引入
 [Serializable]
 public class InventoryItemSlot
 {
-    public string itemID; // 我们将使用物品的 ScriptableObject 文件名作为唯一ID
+    public string itemGuid; // <-- 修改此处
     public int amount;
 }
 

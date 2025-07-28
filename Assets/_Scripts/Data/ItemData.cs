@@ -7,7 +7,7 @@ using UnityEngine;
 /// 实现了【数据与逻辑分离】的核心设计哲学。
 /// </summary>
 [CreateAssetMenu(fileName = "NewItemData", menuName = "梦境小镇/数据/物品数据")] // 根据总监要求，提供清晰的菜单路径
-public class ItemData : ScriptableObject
+public class ItemData : BaseDataSO
 {
     [Header("核心信息")]
     public string itemName; // 物品名称

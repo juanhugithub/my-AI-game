@@ -30,6 +30,12 @@ public static class GameEvents
     /// 场景状态类型枚举，用于指示场景加载或卸载的类型。
     /// </summary>
     public enum SceneStateType { LoadedAdditive, UnloadedAdditive }
+    /// <summary>
+    /// 【新增】当任何可能影响任务进度的行为发生时触发。
+    /// 这是新的、通用的任务进度事件。
+    /// 参数: (ObjectiveType type, string targetID)
+    /// </summary>
+    public const string OnQuestObjectiveProgress = "OnQuestObjectiveProgress";
 }
 
 

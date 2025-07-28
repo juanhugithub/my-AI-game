@@ -15,20 +15,20 @@ public class StorageBoxController : MonoBehaviour
 
     public void AddItem(ItemData item, int amount)
     {
-        var itemSlot = storedItems.FirstOrDefault(slot => slot.itemID == item.name);
+        var itemSlot = storedItems.FirstOrDefault(slot => slot.itemGuid == item.name);
         if (itemSlot != null)
         {
             itemSlot.amount += amount;
         }
         else
         {
-            storedItems.Add(new InventoryItemSlot { itemID = item.name, amount = amount });
+            storedItems.Add(new InventoryItemSlot { itemGuid = item.name, amount = amount });
         }
     }
 
     public bool RemoveItem(ItemData item, int amount)
     {
-        var itemSlot = storedItems.FirstOrDefault(slot => slot.itemID == item.name);
+        var itemSlot = storedItems.FirstOrDefault(slot => slot.itemGuid == item.name);
         if (itemSlot != null && itemSlot.amount >= amount)
         {
             itemSlot.amount -= amount;

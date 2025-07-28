@@ -23,8 +23,8 @@ public class StorageUIManager : MonoBehaviour
 
     public void Close()
     {
-        storagePanel.SetActive(false);
-        currentOpenBox = null;
+        // 直接请求UImanager关闭仓库面板
+        UImanager.Instance.CloseStoragePanel();
         // 别忘了存档
         DataManager.Instance.SaveGame();
     }
@@ -45,7 +45,7 @@ public class StorageUIManager : MonoBehaviour
         // 注意：这里需要修改StorageBoxController来让它更容易被访问
         foreach (var itemSlot in currentOpenBox.GetStoredItems())
         {
-            ItemData itemData = Resources.Load<ItemData>($"Items/{itemSlot.itemID}");
+            ItemData itemData = Resources.Load<ItemData>($"Items/{itemSlot.itemGuid}");
             if (itemData != null)
             {
                 CreateSlot(storageContent, itemData, itemSlot.amount, false);
