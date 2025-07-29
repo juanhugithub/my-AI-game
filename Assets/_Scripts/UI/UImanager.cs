@@ -15,6 +15,7 @@ public class UImanager : MonoBehaviour
 
     [Header("子UI管理器")]
     [SerializeField] private StorageUIManager storageUIManager;
+    [SerializeField] private ShopUI shopUI; // 引用ShopPanel上的控制器
 
     [Header("全局提示UI")]
     [SerializeField] private GameObject hintPanel;
@@ -25,7 +26,19 @@ public class UImanager : MonoBehaviour
     {
         if (Instance == null) { Instance = this; } else { Destroy(gameObject); }
     }
+    public void OpenShopPanel(ShopData shopData)
+    {
+        if (shopUI != null)
+        {
+            shopUI.OpenShop(shopData);
+            PlayerStateMachine.Instance.SetState(PlayerState.InMenu);
+        }
+    }
 
+    public void CloseShopPanel()
+    {
+        PlayerStateMachine.Instance.SetState(PlayerState.Gameplay);
+    }
     // --- 公共的、用于打开/关闭面板的调度方法 ---
 
     /// <summary>

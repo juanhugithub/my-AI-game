@@ -6,6 +6,7 @@ public class NPCController : MonoBehaviour
 {
     [SerializeField] private DialogueData initialDialogue;
     [SerializeField] private QuestData questToOfferAfterDialogue;
+    [SerializeField] private ShopData shopToOpenAfterDialogue; // 【新增】
     private bool isPlayerInRange = false;
 
     private void Update()
@@ -26,6 +27,11 @@ public class NPCController : MonoBehaviour
                 if (questToOfferAfterDialogue != null && QuestSystem.Instance != null)
                 {
                     QuestSystem.Instance.AcceptQuest(questToOfferAfterDialogue);
+                }
+                // 【新增】如果配置了商店数据，则打开商店
+                if (shopToOpenAfterDialogue != null)
+                {
+                    UImanager.Instance.OpenShopPanel(shopToOpenAfterDialogue);
                 }
             };
 

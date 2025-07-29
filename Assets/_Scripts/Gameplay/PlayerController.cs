@@ -67,16 +67,15 @@ public class PlayerController : MonoBehaviour
         // 【关键修正】将错误的 'state' 修正为 'sceneInfo.state'
         if (sceneInfo.state == GameEvents.SceneStateType.LoadedAdditive)
         {
-            // 根据场景名称，决定玩家是否可见
-            if (sceneInfo.sceneName == "TownScene" || sceneInfo.sceneName == "FarmScene")
+            // 【核心修改】根据场景名称，决定玩家是否可见
+            if (sceneInfo.sceneName == "TownScene") // 只有在小镇才显示
             {
-                // 在世界探索场景中，显示玩家
                 SetPlayerVisibility(true);
-                GoToSpawnPoint("Default"); // 并移动到出生点
+                GoToSpawnPoint("Default");
             }
-            else if (sceneInfo.sceneName == "WatermelonScene")
+            else if (sceneInfo.sceneName == "FarmScene" || sceneInfo.sceneName == "WatermelonScene")
             {
-                // 在独立玩法场景中，隐藏玩家
+                // 在农场和西瓜等独立玩法场景中，隐藏玩家
                 SetPlayerVisibility(false);
             }
         }

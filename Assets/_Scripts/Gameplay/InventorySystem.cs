@@ -15,18 +15,43 @@ public class InventorySystem : MonoBehaviour
         if (Instance == null) { Instance = this; }
         else { Destroy(gameObject); }
     }
-
+    private void Start()
+    {
+        // 【核心修改】订阅"玩家数据已加载"事件
+        EventManager.Instance.Subscribe<PlayerData>("OnPlayerDataLoaded", LoadInventoryFromData);
+    }
+    private void OnDestroy()
+    {
+        if (EventManager.Instance != null)
+        {
+            EventManager.Instance.Unsubscribe<PlayerData>("OnPlayerDataLoaded", LoadInventoryFromData);
+        }
+    }
+    // 【核心修改】此方法现在是事件回调
     public void LoadInventoryFromData(PlayerData playerData)
     {
         inventoryItems.Clear();
+        Debug.Log($"[InventorySystem] 开始根据PlayerData刷新背包，存档中有 {playerData.inventoryItems.Count} 种物品。");
+
         foreach (var itemSlot in playerData.inventoryItems)
         {
+            // 【新增日志】
+            Debug.Log($"[InventorySystem] 正在尝试加载 GUID: {itemSlot.itemGuid}");
             ItemData itemData = AssetManager.Instance.GetAssetByGUID<ItemData>(itemSlot.itemGuid);
             if (itemData != null)
             {
                 inventoryItems[itemData] = itemSlot.amount;
+                // 【新增日志】
+                Debug.Log($"[InventorySystem] -> 成功加载并添加物品: {itemData.itemName}, 数量: {itemSlot.amount}");
+            }
+            else
+            {
+                // 【新增日志】
+                Debug.LogWarning($"[InventorySystem] -> 加载失败！找不到GUID为 {itemSlot.itemGuid} 的物品资产！请检查DataManager中的GUID是否正确，以及对应的资产是否存在。");
             }
         }
+        Debug.Log($"[InventorySystem] 背包已根据最新玩家数据刷新，当前物品种类: {inventoryItems.Count}");
+        // 刷新完后，再广播一个通用更新事件，通知UI
         EventManager.Instance.TriggerEvent<object>(GameEvents.OnInventoryUpdated, null);
     }
 

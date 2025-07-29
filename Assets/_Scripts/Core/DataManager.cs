@@ -10,15 +10,14 @@ public class DataManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            LoadGame();
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (Instance == null) { Instance = this; }
+        else { Destroy(gameObject); }
+    }
+    private void Start()
+    {
+        // 将LoadGame从Awake移至Start，作为双重保险
+        // Start在所有Awake之后执行，能进一步确保所有Instance都已准备就绪
+        LoadGame();
     }
     // 【新增】当此对象被销毁时，检查它是否是当前的单例实例。
     // 如果是，则将静态实例设为null，防止其他脚本访问到已销毁的对象。
@@ -62,10 +61,29 @@ public class DataManager : MonoBehaviour
     public void LoadGame()
     {
         string json = PlayerPrefs.GetString(SaveKey, string.Empty);
-        PlayerData = !string.IsNullOrEmpty(json)
-         ? JsonUtility.FromJson<PlayerData>(json)
-         : new PlayerData();
-
+        if (!string.IsNullOrEmpty(json))
+        {
+            PlayerData = JsonUtility.FromJson<PlayerData>(json);
+            // 【新增日志】
+            Debug.Log($"[DataManager] 成功加载旧存档。存档中包含 {PlayerData.inventoryItems.Count} 种物品。");
+        }
+        else
+        {
+            Debug.Log("[DataManager] 未找到存档，正在创建新玩家数据...");
+            PlayerData = new PlayerData();
+            // 为新玩家提供初始资源 (请确保GUID正确)
+            PlayerData.inventoryItems.Add(new InventoryItemSlot { itemGuid = "45e42e94-69db-435a-8553-71df0e14d90f", amount = 5 }); // 假设"VitalityFruit"的GUID是这个
+                                                                                                                                    // 【修改】提供20颗活力果种子，使用其GUID
+            PlayerData.inventoryItems.Add(new InventoryItemSlot { itemGuid = "3df0a020-13b5-4846-a7fa-4421b336ac5f", amount = 20 });
+            PlayerData.inventoryItems.Add(new InventoryItemSlot { itemGuid = "572f5054-4142-4b05-b248-55a92b614b95", amount = 1 });
+            PlayerData.inventoryItems.Add(new InventoryItemSlot { itemGuid = "582f5054-4142-4b05-b248-55a92b614b95", amount = 1 });
+            PlayerData.Gold = 1000; // 初始金币
+                                    // 【新增日志】
+            Debug.Log($"[DataManager] 已为新玩家添加 {PlayerData.inventoryItems.Count} 种初始物品。");
+            SaveGame(); // 创建完新数据后立刻保存一次
+        }
+        // 【核心修改】无论加载旧档还是创建新档，都广播一个事件，通知所有关心数据的系统进行刷新
+        EventManager.Instance.TriggerEvent("OnPlayerDataLoaded", PlayerData);
         // 【新增】在加载完玩家数据后，立即调用InventorySystem来加载背包
         // 此时AssetManager的Awake已经执行完毕，是安全的
         if (InventorySystem.Instance != null)

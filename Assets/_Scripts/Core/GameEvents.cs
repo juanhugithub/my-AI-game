@@ -36,6 +36,11 @@ public static class GameEvents
     /// 参数: (ObjectiveType type, string targetID)
     /// </summary>
     public const string OnQuestObjectiveProgress = "OnQuestObjectiveProgress";
+    /// <summary>
+    /// 当一天结束时（午夜）触发。
+    /// 参数: int (新的一天的天数)
+    /// </summary>
+    public const string OnDayEnd = "OnDayEnd";
 }
 
 

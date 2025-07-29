@@ -3,7 +3,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using System; // For Serializable
 
-public enum ObjectiveType { GATHER, PLAY_GAME, TALK } //【新增】对话任务类型
+// ObjectiveType枚举修改
+public enum ObjectiveType { GATHER, PLAY_GAME, TALK, BUY_ITEM, SELL_ITEM } //【新增】
 
 [Serializable]
 public class QuestObjective
